@@ -1,208 +1,81 @@
 # IR Alert System 🔴
 
+
 https://wokwi.com/projects/457150179175680001
 
-<div align="center">
-
-![IR Alert System Banner](https://img.shields.io/badge/IR%20Alert%20System-Proximity%20Alarm-0f766e?style=for-the-badge&logo=arduino&logoColor=white)
-
-**An Intelligent Proximity Security Alarm built with Arduino Uno**
 
 [![Arduino](https://img.shields.io/badge/Platform-Arduino%20Uno-00979D?style=flat-square&logo=arduino&logoColor=white)](https://www.arduino.cc/)
-[![Language](https://img.shields.io/badge/Language-Arduino%20C%2B%2B-blue?style=flat-square&logo=cplusplus&logoColor=white)](https://www.arduino.cc/reference/en/)
+[![Python](https://img.shields.io/badge/Python-3.x-yellow?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Simulate on Wokwi](https://img.shields.io/badge/Simulate-Wokwi-green?style=flat-square&logo=arduino&logoColor=white)](https://wokwi.com)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-blue?style=flat-square)](CONTRIBUTING.md)
-
-[Overview](#-overview) · [Features](#-features) · [Components](#-components) · [Wiring](#-wiring) · [Setup](#-getting-started) · [Code](#-code) · [Troubleshooting](#-troubleshooting)
-
-</div>
 
 ---
 
-## 📖 Overview
+So I built a motion-triggered security alarm using an Arduino Uno and a few cheap components. The idea is simple — something moves in front of the sensor, and the system immediately sets off a buzzer, lights up an LED, and shows an alert on a small LCD screen. When whatever triggered it moves away, everything resets on its own.
 
-The **IR Alert System** is a real-time proximity detection alarm built on an Arduino Uno. It uses an **FC-51 infrared sensor** to continuously monitor a defined zone. The moment an object or person enters the detection range, the system responds instantly with:
-
-- 🔔 A **buzzer alarm** (1 kHz tone via PWM)
-- 💡 A **red LED indicator**
-- 🖥️ A live **LCD status message** via I²C
-
-When the zone clears, everything resets automatically — no manual intervention needed.
-
-This project is ideal as a **starter security system**, a **learning platform** for embedded systems concepts, or a building block for more advanced IoT automation.
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                  SYSTEM FLOW                            │
-│                                                         │
-│   IR Sensor ──► Arduino Uno ──► Buzzer  (Pin 8)        │
-│   (Pin 2)             │──────► LED     (Pin 13)        │
-│                       └──────► LCD I²C (A4 / A5)       │
-└─────────────────────────────────────────────────────────┘
-```
+What I really liked about this project is that you don't need to buy anything to try it out. You can run it three different ways depending on what you have available.
 
 ---
 
-## ✨ Features
+## How You Can Run It
 
-- 📡 Infrared proximity detection with **adjustable range (2–30 cm)**
-- 🔔 Audio alert via **passive buzzer** (PWM-driven, 1 kHz)
-- 💡 Visual alert via **5mm red LED**
-- 🖥️ **I²C LCD 16×2** displaying live status (`Standby...` / `ALERT! Object Detected`)
-- 🔄 **Auto-reset** when the detection zone is cleared
-- 📟 **Serial monitor output** at 9600 baud for PC-side debugging
-- ⚡ Fully powered over **USB** — no external supply required
-- 🧩 **Breadboard-friendly** — no soldering needed
+**Option 1 — You have the actual hardware**
+Buy the components (costs under $10), wire everything up, and flash the code onto an Arduino Uno. This is the real deal.
 
----
+**Option 2 — You don't have hardware but want to try it**
+Use [Wokwi](https://wokwi.com) — a free browser-based Arduino simulator. It has all the components you need and the simulation is surprisingly accurate. No install, no signup required.
 
-## 🧰 Components
-
-| # | Component | Model / Spec | Qty |
-|---|-----------|-------------|-----|
-| 1 | Arduino Uno | ATmega328P, 16 MHz, 14 digital I/O | 1 |
-| 2 | IR Sensor Module | FC-51 / TCRT5000, adjustable range | 1 |
-| 3 | Passive Buzzer | 5V, PWM-driven | 1 |
-| 4 | 5mm LED | Red, Vf ≈ 2V | 1 |
-| 5 | Resistor | 220Ω current-limiting | 1 |
-| 6 | I²C LCD Display | 16×2, I²C backpack, address `0x27` | 1 |
-| 7 | Half-size Breadboard | 400 tie-points | 1 |
-| 8 | Jumper Wires | Male-to-Male | ~10 |
-
-> 💰 **Estimated total cost:** Under $10 USD using common hobbyist suppliers.
+**Option 3 — You just have a laptop**
+Skip Arduino entirely. There's a Python script that uses your webcam to detect motion and mimics the exact same alarm behavior on your screen — LCD display overlay, LED indicator, buzzer sound, everything.
 
 ---
 
-## 🔌 Wiring
+## The Hardware Version
 
-### IR Sensor Module (FC-51 / TCRT5000)
+### What you need
 
-| IR Sensor Pin | → | Arduino Pin | Notes |
-|:---:|:---:|:---:|---|
-| VCC | → | 5V | Power |
-| GND | → | GND | Ground |
-| OUT | → | **Digital Pin 2** | Digital input signal |
+| Component | Details |
+|-----------|---------|
+| Arduino Uno | The main brain — ATmega328P chip |
+| IR Sensor (FC-51) | Detects objects up to 30cm away |
+| Passive Buzzer | Makes the alarm sound |
+| Red LED + 220Ω resistor | Visual indicator |
+| I²C LCD 16×2 | Shows status messages |
+| Breadboard + wires | For connecting everything |
 
-### Passive Buzzer
-
-| Buzzer Pin | → | Arduino Pin | Notes |
-|:---:|:---:|:---:|---|
-| + (positive) | → | **Digital Pin 8** | PWM tone output |
-| − (negative) | → | GND | Ground |
-
-### 5mm LED + 220Ω Resistor
-
-| LED Terminal | → | Arduino Connection | Notes |
-|:---:|:---:|:---:|---|
-| Anode (+) | → | **Digital Pin 13** → 220Ω | Resistor in series |
-| Cathode (−) | → | GND | Ground |
-
-### I²C LCD 16×2 (address `0x27`)
-
-| LCD Pin | → | Arduino Pin | Notes |
-|:---:|:---:|:---:|---|
-| VCC | → | 5V | Power |
-| GND | → | GND | Ground |
-| SDA | → | **Analog Pin A4** | I²C data line |
-| SCL | → | **Analog Pin A5** | I²C clock line |
-
-> [!TIP]
-> Use the breadboard's **+** and **−** power rails to distribute 5V and GND across all components. Keep signal wires short to reduce noise on the IR sensor output.
-
-> [!NOTE]
-> Some I²C LCD modules use address `0x3F` instead of `0x27`. If your display shows nothing, try changing `LiquidCrystal_I2C lcd(0x27, 16, 2)` to `LiquidCrystal_I2C lcd(0x3F, 16, 2)` in the sketch, or run the [I²C Scanner sketch](https://playground.arduino.cc/Main/I2cScanner/) to detect the correct address.
-
----
-
-## 📦 Required Libraries
-
-Install via **Arduino IDE Library Manager** (`Sketch → Include Library → Manage Libraries`):
-
-| Library | Author | Purpose |
-|---------|--------|---------|
-| `Wire` | Arduino (built-in) | I²C communication |
-| `LiquidCrystal I2C` | Frank de Brabander | I²C LCD control |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Arduino IDE](https://www.arduino.cc/en/software) (v1.8+ or v2.x)
-- USB Type-B cable (Arduino Uno standard)
-- All components listed above
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/ir-alert-system.git
-cd ir-alert-system
-```
-
-### 2. Install the Library
-
-Open Arduino IDE and navigate to:
+### How to wire it
 
 ```
-Sketch → Include Library → Manage Libraries
+IR Sensor    VCC  →  Arduino 5V
+IR Sensor    GND  →  Arduino GND
+IR Sensor    OUT  →  Arduino Pin 2
+
+Buzzer        +   →  Arduino Pin 8
+Buzzer        −   →  Arduino GND
+
+LED           +   →  220Ω resistor → Arduino Pin 13
+LED           −   →  Arduino GND
+
+LCD          VCC  →  Arduino 5V
+LCD          GND  →  Arduino GND
+LCD          SDA  →  Arduino A4
+LCD          SCL  →  Arduino A5
 ```
 
-Search for **`LiquidCrystal I2C`** and install the version by **Frank de Brabander**.
-
-### 3. Wire the Hardware
-
-Follow the [Wiring](#-wiring) section above. Double-check:
-- IR sensor `OUT` → Pin **2**
-- Buzzer `+` → Pin **8**
-- LED anode → Pin **13** (with 220Ω resistor in series)
-- LCD `SDA` → **A4**, `SCL` → **A5**
-
-### 4. Open the Sketch
-
-```
-File → Open → ir_alert_system/ir_alert_system.ino
-```
-
-### 5. Upload
-
-1. Connect Arduino Uno via USB
-2. Select board: `Tools → Board → Arduino Uno`
-3. Select port: `Tools → Port → COMx` (Windows) or `/dev/ttyUSBx` (Linux/macOS)
-4. Click **Upload** ➜
-
-### 6. Test
-
-Open the Serial Monitor (`Tools → Serial Monitor`) at **9600 baud**.
-
-Wave your hand in front of the IR sensor. You should see:
-
-| Event | LCD | Buzzer | LED | Serial |
-|-------|-----|--------|-----|--------|
-| Object detected | `>> ALERT! <<` | Sounds (1 kHz) | ON 🔴 | `ALERT: Object in range` |
-| Zone cleared | `Standby...` | Silent | OFF | `Zone cleared.` |
-
----
-
-## 💻 Code
+### The code
 
 ```cpp
-// IR Alert System — Intelligent Proximity Alarm
-// Arduino Uno Sketch
-
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-// Pin Definitions
-const int IR_PIN    = 2;
-const int BUZZER    = 8;
-const int LED_PIN   = 13;
-
-// LCD: I2C address 0x27, 16 columns, 2 rows
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-bool lastState = HIGH;
+const int IR_PIN  = 2;
+const int BUZZER  = 8;
+const int LED_PIN = 13;
+
+bool lastState  = HIGH;
+int  alertCount = 0;
 
 void setup() {
   pinMode(IR_PIN,  INPUT);
@@ -217,136 +90,350 @@ void setup() {
   lcd.print("   Standby...   ");
 
   Serial.begin(9600);
-  delay(1500);
 }
 
 void loop() {
   bool detected = (digitalRead(IR_PIN) == LOW);
 
   if (detected && lastState == HIGH) {
-    // Object detected — trigger alert
+    alertCount++;
     digitalWrite(LED_PIN, HIGH);
     tone(BUZZER, 1000, 300);
-
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(" >> ALERT! <<   ");
     lcd.setCursor(0, 1);
-    lcd.print("Object Detected ");
-
-    Serial.println("ALERT: Object in range");
+    lcd.print("Object Detected!");
+    Serial.print("ALERT #");
+    Serial.println(alertCount);
   }
 
   if (!detected && lastState == LOW) {
-    // Zone cleared — reset to standby
     digitalWrite(LED_PIN, LOW);
     noTone(BUZZER);
-
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("  IR Alert Sys  ");
     lcd.setCursor(0, 1);
     lcd.print("   Standby...   ");
-
     Serial.println("Zone cleared.");
   }
 
   lastState = detected ? LOW : HIGH;
-  delay(50);
+  delay(100);
 }
 ```
 
-### Logic Flow
+Before uploading, install the **LiquidCrystal I2C** library by Frank de Brabander from the Arduino IDE Library Manager (`Sketch → Include Library → Manage Libraries`).
+
+---
+
+## The Wokwi Simulation
+
+If you don't have hardware, this is the easiest way to see the project working.
+
+Go to [wokwi.com](https://wokwi.com), click **Arduino (Uno, Mega, Nano)**, then **Arduino Uno**. You'll land on an empty project with a blank sketch.
+
+Add these components using the **+** button:
+
+- PIR Motion Sensor *(this replaces the FC-51 IR sensor — same idea, same digital output)*
+- LCD 1602 I2C
+- Buzzer
+- LED
+- Resistor *(set value to 220)*
+
+Wire them up like this:
 
 ```
-SETUP
-  └── Initialize pins → Init LCD → Show "Standby..." → Begin Serial
+PIR   +    →  Arduino 5V
+PIR   D    →  Arduino Pin 2
+PIR   −    →  Arduino GND
 
-LOOP (every 50ms)
-  ├── Read IR Pin 2
-  │
-  ├── [LOW = Object Detected]
-  │     ├── LED ON
-  │     ├── tone(BUZZER, 1000, 300)
-  │     ├── LCD: ">> ALERT! << / Object Detected"
-  │     └── Serial: "ALERT: Object in range"
-  │
-  └── [HIGH = Zone Clear]
-        ├── LED OFF
-        ├── noTone(BUZZER)
-        ├── LCD: "IR Alert Sys / Standby..."
-        └── Serial: "Zone cleared."
+Buzzer +   →  Arduino Pin 8
+Buzzer −   →  Arduino GND
+
+LED   +    →  220Ω  →  Arduino Pin 13
+LED   −    →  Arduino GND
+
+LCD  VCC   →  Arduino 5V
+LCD  GND   →  Arduino GND
+LCD  SDA   →  Arduino A4
+LCD  SCL   →  Arduino A5
 ```
 
+Then paste this into the sketch editor:
+
+```cpp
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+const int PIR_PIN = 2;
+const int BUZZER  = 8;
+const int LED_PIN = 13;
+
+bool lastState  = LOW;
+int  alertCount = 0;
+
+void setup() {
+  pinMode(PIR_PIN, INPUT);
+  pinMode(BUZZER,  OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("  IR Alert Sys  ");
+  lcd.setCursor(0, 1);
+  lcd.print("   Standby...   ");
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  bool detected = (digitalRead(PIR_PIN) == HIGH);
+
+  if (detected && lastState == LOW) {
+    alertCount++;
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER, 1000, 300);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(" >> ALERT! <<   ");
+    lcd.setCursor(0, 1);
+    lcd.print("Motion Detected!");
+    Serial.print("ALERT #");
+    Serial.println(alertCount);
+  }
+
+  if (!detected && lastState == HIGH) {
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("  IR Alert Sys  ");
+    lcd.setCursor(0, 1);
+    lcd.print("   Standby...   ");
+    Serial.println("Zone cleared.");
+  }
+
+  lastState = detected ? HIGH : LOW;
+  delay(100);
+}
+```
+
+Hit **▶ Run**. If it asks you to install the LiquidCrystal_I2C library, just click the blue install button that pops up, then run it again.
+
+Once it's running, click directly on the PIR sensor component to simulate motion. The LCD will switch to the alert message, the LED turns on, and the buzzer fires. Click it again to clear the zone.
+
 ---
 
-## 🔧 Troubleshooting
+## The Webcam Version
 
-| Problem | Likely Cause | Fix |
-|---------|-------------|-----|
-| LCD shows nothing | Wrong I²C address | Run [I²C Scanner](https://playground.arduino.cc/Main/I2cScanner/); try `0x3F` |
-| LCD shows black blocks only | Contrast too low | Turn the blue potentiometer on the I²C backpack |
-| IR always triggered | Ambient IR interference | Shield sensor from sunlight or fluorescent light |
-| IR never triggers | Detection range too short | Turn sensor potentiometer clockwise to increase range |
-| No buzzer sound | Wiring issue | Confirm buzzer `+` is on Pin 8, not directly on 5V |
-| Upload fails | Wrong port or board | Check `Tools → Board` and `Tools → Port` |
-| Garbled serial output | Wrong baud rate | Set Serial Monitor to **9600** baud |
+No Arduino, no browser simulator — just Python and your laptop camera.
+
+Install the dependencies:
+
+```bash
+pip install opencv-python numpy pygame
+```
+
+Save this as `ir_alert_webcam.py` and run it with `python ir_alert_webcam.py`:
+
+```python
+import cv2
+import numpy as np
+import pygame
+import time
+
+# Tweak these if needed
+CAMERA_INDEX   = 0      # try 1 or 2 if wrong camera opens
+SENSITIVITY    = 25     # lower = more sensitive
+MIN_AREA       = 1500   # minimum motion size to trigger
+ALERT_COOLDOWN = 2.0    # seconds between beeps
+BEEP_FREQ      = 1000
+BEEP_DURATION  = 300
+
+pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
+
+def beep():
+    sample_rate = 44100
+    samples = int(sample_rate * BEEP_DURATION / 1000)
+    t = np.linspace(0, BEEP_DURATION / 1000, samples, False)
+    wave = (np.sin(2 * np.pi * BEEP_FREQ * t) * 32767).astype(np.int16)
+    wave = np.column_stack([wave, wave])
+    pygame.sndarray.make_sound(wave).play()
+
+def draw_lcd(frame, line1, line2, alert=False):
+    h, w = frame.shape[:2]
+    x, y = w - 360, h - 90
+    cv2.rectangle(frame, (x, y), (x+340, y+70),
+                  (0, 0, 80) if alert else (0, 50, 0), -1)
+    cv2.rectangle(frame, (x, y), (x+340, y+70),
+                  (0, 0, 255) if alert else (0, 200, 0), 2)
+    color = (0, 80, 255) if alert else (0, 255, 0)
+    cv2.putText(frame, line1[:16], (x+10, y+25),
+                cv2.FONT_HERSHEY_PLAIN, 1.4, color, 1)
+    cv2.putText(frame, line2[:16], (x+10, y+55),
+                cv2.FONT_HERSHEY_PLAIN, 1.4, color, 1)
+
+def draw_led(frame, on=False):
+    h, w = frame.shape[:2]
+    cv2.circle(frame, (w-30, 30), 14,
+               (0, 0, 255) if on else (40, 40, 80), -1)
+    if on:
+        cv2.circle(frame, (w-30, 30), 22, (0, 0, 120), 2)
+    cv2.putText(frame, "LED", (w-44, 60),
+                cv2.FONT_HERSHEY_PLAIN, 0.9, (150, 150, 150), 1)
+
+def draw_status(frame, status, alerts):
+    cv2.rectangle(frame, (0, 0), (frame.shape[1], 36), (20, 20, 20), -1)
+    color = (0, 80, 255) if status == "ALERT" else (0, 200, 100)
+    cv2.putText(frame,
+                f"IR Alert System  |  {status}  |  Alerts: {alerts}",
+                (10, 24), cv2.FONT_HERSHEY_PLAIN, 1.3, color, 1)
+
+def main():
+    cap = cv2.VideoCapture(CAMERA_INDEX)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
+    _, bg = cap.read()
+    bg_gray = cv2.GaussianBlur(
+        cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY), (21, 21), 0)
+
+    alert_active    = False
+    last_alert_time = 0
+    alert_count     = 0
+
+    print("Running — Q to quit, R to reset background, S to save snapshot")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        frame = cv2.flip(frame, 1)
+        gray  = cv2.GaussianBlur(
+            cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (21, 21), 0)
+
+        delta    = cv2.absdiff(bg_gray, gray)
+        thresh   = cv2.threshold(delta, SENSITIVITY, 255, cv2.THRESH_BINARY)[1]
+        thresh   = cv2.dilate(thresh, None, iterations=2)
+        contours, _ = cv2.findContours(
+            thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        detected = any(cv2.contourArea(c) > MIN_AREA for c in contours)
+
+        for c in contours:
+            if cv2.contourArea(c) > MIN_AREA:
+                x, y, w, h = cv2.boundingRect(c)
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 0, 255), 2)
+                cv2.putText(frame, "OBJECT", (x, y-8),
+                            cv2.FONT_HERSHEY_PLAIN, 1.1, (0, 0, 255), 1)
+
+        now = time.time()
+
+        if detected:
+            alert_active = True
+            if now - last_alert_time > ALERT_COOLDOWN:
+                alert_count += 1
+                beep()
+                last_alert_time = now
+                print(f"ALERT #{alert_count}: Motion detected!")
+        else:
+            if alert_active:
+                print("Zone cleared. Standby...")
+            alert_active = False
+
+        line1 = " >> ALERT! <<   " if alert_active else "  IR Alert Sys  "
+        line2 = "Motion Detected!" if alert_active else "   Standby...   "
+
+        if alert_active:
+            cv2.rectangle(frame, (0, 0),
+                          (frame.shape[1]-1, frame.shape[0]-1), (0, 0, 255), 4)
+
+        draw_status(frame, "ALERT" if alert_active else "STANDBY", alert_count)
+        draw_lcd(frame, line1, line2, alert=alert_active)
+        draw_led(frame, on=alert_active)
+        cv2.imshow("IR Alert System", frame)
+
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            break
+        elif key == ord('r'):
+            bg_gray = gray.copy()
+            print("Background reset.")
+        elif key == ord('s'):
+            name = f"snapshot_{int(time.time())}.png"
+            cv2.imwrite(name, frame)
+            print(f"Saved: {name}")
+
+    cap.release()
+    cv2.destroyAllWindows()
+    pygame.mixer.quit()
+
+if __name__ == "__main__":
+    main()
+```
+
+It works by comparing each frame against a background reference. When something moves enough to cross the threshold, it triggers the alert. Press **R** to recalibrate the background if the room lighting changes or you're getting too many false alerts.
 
 ---
 
-## 🌐 Possible Extensions
+## Things that might go wrong
 
-| Idea | How |
-|------|-----|
-| **Relay switch** | Trigger a light, lock, or fan on detection |
-| **Wi-Fi alerts** | Swap to ESP8266/ESP32 and send MQTT / HTTP push notifications |
-| **Event counter** | Log detection count to EEPROM or SD card |
-| **Multiple zones** | Add more IR sensors on Pins 3, 4, 5… |
-| **Longer range** | Replace IR with HC-SR04 ultrasonic sensor (up to 4 m) |
-| **Arm / Disarm** | Add a 4×4 keypad and password logic |
-| **Timestamp log** | Add DS3231 RTC module to log events with date and time |
+**LCD is blank** — most likely the I²C address is wrong. Try changing `0x27` to `0x3F` in the code. Some modules ship with one, some with the other.
+
+**LCD shows solid black blocks** — the contrast needs adjusting. There's a small blue potentiometer on the back of the I²C module. Turn it slowly until the text appears.
+
+**IR sensor always triggered** — it's picking up ambient infrared light. Move it away from direct sunlight or fluorescent bulbs, or turn the small potentiometer on the sensor to reduce sensitivity.
+
+**Wokwi says library not found** — just click the blue install button in the popup. It installs automatically, then click run again.
+
+**Webcam version triggers constantly** — raise `SENSITIVITY` to around 40–60 and `MIN_AREA` to 3000. Also make sure the lighting in your room is stable.
+
+**Wrong camera opens** — change `CAMERA_INDEX` from `0` to `1` or `2`.
 
 ---
 
-## 📁 Project Structure
+## What I'd add next
+
+A few ideas I haven't gotten around to yet:
+
+- Send a **Telegram message** when motion is detected using the `python-telegram-bot` library
+- Log every alert to a **CSV file** with timestamps so you can review them later
+- Add a **keypad** to arm and disarm the system with a password
+- Swap the Arduino for an **ESP32** and get Wi-Fi alerts on your phone
+- Add a **camera snapshot** that automatically saves a photo when the alarm triggers
+
+---
+
+## Files in this repo
 
 ```
 ir-alert-system/
 │
-├── ir_alert_system/
-│   └── ir_alert_system.ino     ← Main Arduino sketch
+├── hardware/
+│   └── ir_alert_hardware.ino    ← for real Arduino + FC-51 sensor
 │
-├── docs/
-│   └── wiring_diagram.png      ← (optional) schematic image
+├── wokwi/
+│   └── ir_alert_wokwi.ino       ← for Wokwi browser simulation
 │
-├── ir-alert-system.html        ← Standalone landing page
-├── README.md                   ← This file
-└── LICENSE                     ← MIT License
+├── webcam/
+│   └── ir_alert_webcam.py       ← for Python + webcam
+│
+├── ir-alert-system.html         ← project landing page
+└── README.md                    ← you're reading it
 ```
 
 ---
 
-## 🤝 Contributing
+## License
 
-Contributions, issues, and feature requests are welcome!
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/add-wifi-alerts`
-3. Commit your changes: `git commit -m 'Add Wi-Fi alert support'`
-4. Push to the branch: `git push origin feature/add-wifi-alerts`
-5. Open a Pull Request
+MIT — do whatever you want with it.
 
 ---
 
-## 📜 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👤 Author
-
-Made with ❤️ in the lab.
-
-> *IR Alert System — Intelligent Proximity Security Alarm*  
-> Platform: Arduino Uno · Language: Arduino C++ · Protocol: I²C
+*Built in the lab. Started as a weekend project, ended up here.*
