@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IR Alert System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #0f766e;
+      --teal-light:  #f0fdfa;
+      --teal-border: #99f6e4;
+      --dark:        #0f2027;
+      --slate:       #1e293b;
+      --gray-700:    #374151;
+      --gray-500:    #6b7280;
+      --gray-400:    #9ca3af;
+      --gray-200:    #e5e7eb;
+      --gray-100:    #f1f5f9;
+      --gray-50:     #f9fafb;
+      --white:       #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--gray-700);
+      line-height: 1.6;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+
+    /* ── TYPOGRAPHY ── */
+    .font-display { font-family: 'DM Serif Display', serif; }
+    .font-mono    { font-family: 'DM Mono', monospace; }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 1.5rem;
+      transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
+      border-bottom: 1px solid transparent;
+    }
+    header.scrolled {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--gray-100);
+    }
+    .header-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+    .logo-dot {
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+      background: var(--teal);
+      animation: pulse-ring 2s cubic-bezier(.455,.03,.515,.955) infinite;
+    }
+    .logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem;
+      color: var(--dark);
+      letter-spacing: -0.02em;
+    }
+    .logo-text span { color: var(--teal); }
+
+    nav.desktop { display: flex; align-items: center; gap: 2rem; }
+    nav.desktop a {
+      position: relative;
+      color: var(--gray-700);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav.desktop a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--teal);
+      transition: width 0.25s;
+    }
+    nav.desktop a:hover { color: var(--teal); }
+    nav.desktop a:hover::after { width: 100%; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: var(--teal-light); }
+    .hamburger span {
+      display: block;
+      height: 2px;
+      background: var(--dark);
+      border-radius: 2px;
+      transition: transform 0.2s, width 0.2s, opacity 0.2s;
+    }
+    .hamburger span:nth-child(1) { width: 20px; }
+    .hamburger span:nth-child(2) { width: 20px; }
+    .hamburger span:nth-child(3) { width: 20px; }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      display: none;
+      background: rgba(255,255,255,0.97);
+      border-top: 1px solid var(--gray-100);
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a {
+      display: block;
+      padding: 0.875rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gray-50);
+      transition: color 0.2s, background 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--teal); background: var(--teal-light); }
+
+    /* ── HERO ── */
+    #overview {
+      padding: 8rem 1.5rem 6rem;
+      background: linear-gradient(160deg, #f9fafb 0%, #ffffff 50%, #f0fdfa 100%);
+    }
+    .hero-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--teal-light);
+      color: var(--teal);
+      border: 1px solid var(--teal-border);
+      margin-bottom: 1.5rem;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    h1.hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.8rem, 5vw, 3.75rem);
+      line-height: 1.1;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+    h1.hero-title span { color: var(--teal); }
+    .hero-desc {
+      font-size: 1.125rem;
+      color: var(--gray-500);
+      max-width: 27rem;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+    .hero-desc strong { color: var(--gray-700); font-weight: 600; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn-primary {
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      background: var(--teal);
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(15,118,110,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,118,110,0.35); }
+    .btn-secondary {
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      background: white;
+      text-decoration: none;
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--teal); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    /* Arduino board card */
+    .board-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+      width: 340px;
+      margin: 0 auto;
+      animation: float 6s ease-in-out infinite;
+    }
+    .board-inner {
+      background: var(--dark);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .board-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: #94a3b8; }
+    .board-led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 8px var(--teal);
+    }
+    .pin-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 0.75rem;
+    }
+    .pin {
+      height: 1.25rem;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7px;
+      color: #64748b;
+      background: #1e293b;
+    }
+    .pin.ir   { background: #0369a1; color: white; }
+    .pin.bzr  { background: #b45309; color: white; }
+    .pin.led  { background: #dc2626; color: white; }
+    .pin-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+    }
+    .pin-labels span:nth-child(1) { color: #2dd4bf; }
+    .pin-labels span:nth-child(2) { color: #fbbf24; }
+    .pin-labels span:nth-child(3) { color: #f87171; }
+    .lcd-display {
+      background: var(--teal-light);
+      border: 1px solid var(--teal-border);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      margin-bottom: 1rem;
+    }
+    .lcd-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .lcd-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+    .lcd-title { color: #94a3b8; font-size: 0.65rem; }
+    .lcd-screen { color: var(--teal); text-align: center; padding: 0.25rem 0; }
+    .module-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .module-chip {
+      border-radius: 0.5rem;
+      padding: 0.4rem;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Stats */
+    .stats-bar {
+      max-width: 72rem;
+      margin: 5rem auto 0;
+      padding-top: 2rem;
+      border-top: 1px solid var(--gray-200);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--dark);
+    }
+    .stat-label { font-size: 0.875rem; color: var(--gray-400); margin-top: 0.25rem; }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 1.5rem; }
+    .section-inner { max-width: 72rem; margin: 0 auto; }
+    .section-eyebrow {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--teal);
+      margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--gray-500);
+      max-width: 30rem;
+      margin-bottom: 3.5rem;
+    }
+
+    /* ── COMPONENT CARDS ── */
+    #components { background: var(--gray-50); }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .comp-card {
+      background: white;
+      border: 1.5px solid var(--gray-100);
+      border-radius: 1.25rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s, border-color 0.25s, background 0.25s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .comp-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .comp-card.active { transform: translateY(-4px); }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .card-icon {
+      width: 2.75rem; height: 2.75rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: 1px solid transparent;
+    }
+    .card-indicator {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      margin-top: 4px;
+      transition: background 0.2s;
+    }
+    .comp-card.active .card-indicator { background: var(--card-accent, var(--teal)); }
+    .card-name { font-weight: 600; font-size: 0.9375rem; color: var(--dark); margin-bottom: 0.125rem; }
+    .card-subtitle { font-size: 0.75rem; color: var(--gray-400); margin-bottom: 1rem; }
+    .card-specs { list-style: none; display: flex; flex-direction: column; gap: 0.375rem; }
+    .card-specs li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+    .spec-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── WIRING TABLE ── */
+    #wiring { background: white; }
+    .table-wrapper {
+      border-radius: 1.25rem;
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead tr { background: var(--dark); }
+    thead th {
+      padding: 0.875rem 1.25rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+    }
+    tbody tr { border-bottom: 1px solid var(--gray-100); transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover td { background: var(--teal-light); }
+    tbody td { padding: 0.875rem 1.25rem; }
+    td.td-component { font-weight: 600; font-size: 0.75rem; color: var(--dark); }
+    td.td-pin { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--gray-700); }
+    td.td-note { font-size: 0.75rem; color: var(--gray-400); }
+    .pin-badge {
+      display: inline-block;
+      padding: 0.125rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .tip-box {
+      margin-top: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: var(--teal-light);
+      border: 1px solid var(--teal-border);
+      font-size: 0.875rem;
+      color: var(--teal);
+    }
+    .tip-box strong { font-weight: 600; }
+
+    /* ── CODE SECTION ── */
+    #code { background: var(--gray-50); }
+    .code-block {
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    .code-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: #0a1628;
+      border-bottom: 1px solid var(--slate);
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 0.75rem; }
+    .traffic-lights { display: flex; gap: 6px; }
+    .tl { width: 12px; height: 12px; border-radius: 50%; }
+    .tl.red   { background: #ef4444; }
+    .tl.yellow{ background: #f59e0b; }
+    .tl.green { background: #22c55e; }
+    .file-name { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: #475569; }
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: var(--slate);
+      color: #94a3b8;
+      border: 1px solid #334155;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .copy-btn:hover { background: #334155; color: #e2e8f0; }
+    .copy-btn.copied { background: var(--teal); color: white; border-color: var(--teal); }
+    .code-body {
+      background: #0f172a;
+      padding: 1.5rem 1rem;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    pre { font-family: 'DM Mono', monospace; font-size: 0.8125rem; line-height: 1.7; }
+    .code-line { display: flex; }
+    .line-num {
+      user-select: none;
+      width: 2.5rem;
+      text-align: right;
+      padding-right: 1.25rem;
+      flex-shrink: 0;
+      color: #334155;
+      font-size: 0.75rem;
+    }
+    .line-content { color: #e2e8f0; white-space: pre; }
+    .line-content.comment { color: #64748b; font-style: italic; }
+    .line-content.directive { color: #2dd4bf; }
+    .kw  { color: #f472b6; font-weight: 600; }
+    .fn  { color: #38bdf8; }
+    .str { color: #86efac; }
+    .num { color: #fb923c; }
+    .code-footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.625rem 1.25rem;
+      background: #0a1628;
+      border-top: 1px solid var(--slate);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: #475569;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--slate);
+      padding: 3rem 1.5rem;
+    }
+    .footer-inner {
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.75rem; }
+    .footer-logo-text { font-family: 'DM Serif Display', serif; font-size: 1.125rem; color: white; }
+    .lab-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(15,118,110,0.12);
+      color: #2dd4bf;
+      border: 1px solid rgba(15,118,110,0.25);
+    }
+    .footer-credit { font-size: 0.75rem; color: #475569; }
+    .footer-bottom {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--slate);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+    .footer-tag { font-size: 0.75rem; color: #334155; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 0 0 0   rgba(15,118,110,0.4); }
+      70%  { box-shadow: 0 0 0 8px rgba(15,118,110,0); }
+      100% { box-shadow: 0 0 0 0   rgba(15,118,110,0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in   { opacity: 0; animation: fadeIn 0.6s ease forwards; }
+    .delay-1   { animation-delay: 0.1s; }
+    .delay-2   { animation-delay: 0.2s; }
+    .delay-3   { animation-delay: 0.3s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-inner { grid-template-columns: 1fr; }
+      .board-card { display: none; }
+      .stats-bar  { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      nav.desktop { display: none; }
+      .hamburger  { display: flex; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .stats-bar  { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { flex-direction: column; align-items: flex-start; }
+      .section-title { font-size: 2rem; }
+      h1.hero-title  { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header id="site-header">
+  <div class="header-inner">
+    <a href="#overview" class="logo">
+      <div class="logo-dot"></div>
+      <span class="logo-text">IR Alert<span>.</span></span>
+    </a>
+    <nav class="desktop">
+      <a href="#overview">Overview</a>
+      <a href="#components">Components</a>
+      <a href="#wiring">Wiring</a>
+      <a href="#code">Code</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#overview"   onclick="closeMobileMenu()">Overview</a>
+    <a href="#components" onclick="closeMobileMenu()">Components</a>
+    <a href="#wiring"     onclick="closeMobileMenu()">Wiring</a>
+    <a href="#code"       onclick="closeMobileMenu()">Code</a>
+  </div>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section id="overview">
+  <div class="hero-inner">
+    <!-- Text -->
+    <div>
+      <div class="badge fade-in"><span class="badge-dot"></span> Arduino Project · Proximity Detection</div>
+      <h1 class="hero-title fade-in delay-1">IR Alert<br><span>System</span></h1>
+      <p class="hero-desc fade-in delay-2">
+        An <strong>Intelligent Proximity Security Alarm</strong> built with Arduino Uno.
+        Using infrared detection, it triggers real-time visual and audio alerts
+        whenever an object enters the monitored zone.
+      </p>
+      <div class="hero-buttons fade-in delay-3">
+        <a href="#code"       class="btn-primary">View Code →</a>
+        <a href="#components" class="btn-secondary">Components</a>
+      </div>
+    </div>
+
+    <!-- Arduino illustration -->
+    <div>
+      <div class="board-card">
+        <div class="board-inner">
+          <div class="board-header">
+            <span class="board-label">ARDUINO UNO</span>
+            <div class="board-led"></div>
+          </div>
+          <div class="pin-grid">
+            <div class="pin ir">0</div>
+            <div class="pin">1</div>
+            <div class="pin ir">2</div>
+            <div class="pin">3</div>
+            <div class="pin">4</div>
+            <div class="pin">5</div>
+            <div class="pin">6</div>
+            <div class="pin">7</div>
+            <div class="pin bzr">8</div>
+            <div class="pin">9</div>
+            <div class="pin">10</div>
+            <div class="pin">11</div>
+            <div class="pin">12</div>
+            <div class="pin led">13</div>
+          </div>
+          <div class="pin-labels">
+            <span>D2 — IR</span>
+            <span>D8 — BZR</span>
+            <span>D13 — LED</span>
+          </div>
+        </div>
+        <div class="lcd-display">
+          <div class="lcd-header">
+            <div class="lcd-dot"></div>
+            <span class="lcd-title font-mono">LCD 16×2 @ 0x27</span>
+          </div>
+          <div class="lcd-screen font-mono">
+            <div>&nbsp;&nbsp;IR Alert Sys&nbsp;&nbsp;</div>
+            <div>&nbsp;&nbsp;&nbsp;Standby...&nbsp;&nbsp;&nbsp;</div>
+          </div>
+        </div>
+        <div class="module-row">
+          <div class="module-chip font-mono" style="background:#f0f9ff;color:#0369a1;">IR</div>
+          <div class="module-chip font-mono" style="background:#fffbeb;color:#b45309;">BZR</div>
+          <div class="module-chip font-mono" style="background:#fff1f2;color:#dc2626;">LED</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div><div class="stat-value">6</div><div class="stat-label">Components</div></div>
+    <div><div class="stat-value">30cm</div><div class="stat-label">Max Range</div></div>
+    <div><div class="stat-value">I²C</div><div class="stat-label">LCD Protocol</div></div>
+    <div><div class="stat-value">16MHz</div><div class="stat-label">Clock Speed</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════ COMPONENTS ═══════════════ -->
+<section id="components">
+  <div class="section-inner">
+    <div class="section-eyebrow">Hardware</div>
+    <h2 class="section-title">Component Library</h2>
+    <p class="section-desc">Each module plays a specific role. Click any card to highlight its specifications.</p>
+
+    <div class="cards-grid" id="cards-grid">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ WIRING ═══════════════ -->
+<section id="wiring">
+  <div class="section-inner">
+    <div class="section-eyebrow">Connections</div>
+    <h2 class="section-title">Wiring Diagram</h2>
+    <p class="section-desc">Connect each component to the Arduino Uno following the table below. Use the breadboard for ground and power rails.</p>
+
+    <div class="table-wrapper">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Pin / Terminal</th>
+              <th>Arduino Connection</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="wiring-tbody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <span style="font-size:1.25rem;">💡</span>
+      <p><strong>Tip:</strong> Use the breadboard's power rails for 5V and GND distribution.
+      Keep signal wires short to reduce noise on the IR sensor output.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CODE ═══════════════ -->
+<section id="code">
+  <div class="section-inner">
+    <div class="section-eyebrow">Firmware</div>
+    <h2 class="section-title">Arduino Sketch</h2>
+    <p class="section-desc">
+      Upload this sketch via Arduino IDE. Requires the
+      <code style="font-size:0.75rem;padding:2px 6px;border-radius:4px;background:#e5e7eb;color:#374151;font-family:'DM Mono',monospace;">LiquidCrystal_I2C</code>
+      library.
+    </p>
+
+    <div class="code-block">
+      <div class="code-toolbar">
+        <div class="toolbar-left">
+          <div class="traffic-lights">
+            <div class="tl red"></div>
+            <div class="tl yellow"></div>
+            <div class="tl green"></div>
+          </div>
+          <span class="file-name">ir_alert_system.ino</span>
+        </div>
+        <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copy</button>
+      </div>
+      <div class="code-body">
+        <pre id="code-pre"></pre>
+      </div>
+      <div class="code-footer">
+        <span>Arduino C++ · ATmega328P</span>
+        <span>Requires: Wire.h · LiquidCrystal_I2C.h</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-logo">
+        <div class="logo-dot"></div>
+        <span class="footer-logo-text">IR Alert System</span>
+      </div>
+      <div class="lab-badge">🔬 Based in your lab / workspace</div>
+      <p class="footer-credit">Built with Arduino Uno · FC-51 IR · I²C LCD</p>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-tag">Arduino Uno</span>
+      <span class="footer-tag">IR Sensor FC-51</span>
+      <span class="footer-tag">Passive Buzzer</span>
+      <span class="footer-tag">LED + 220Ω</span>
+      <span class="footer-tag">I²C LCD 16×2</span>
+      <span class="footer-tag">Breadboard</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const components = [
+  {
+    id: "arduino", icon: "⬡", name: "Arduino Uno", subtitle: "Microcontroller Board",
+    specs: ["ATmega328P @ 16 MHz","14 Digital I/O pins","6 PWM outputs","5V / 3.3V power rails"],
+    accent:"#0f766e", bg:"#f0fdfa", border:"#99f6e4"
+  },
+  {
+    id: "ir", icon: "◎", name: "IR Sensor Module", subtitle: "FC-51 / TCRT5000",
+    specs: ["Digital output signal","Detection range 2–30 cm","Adjustable via potentiometer","3-pin interface"],
+    accent:"#0369a1", bg:"#f0f9ff", border:"#bae6fd"
+  },
+  {
+    id: "buzzer", icon: "◉", name: "Passive Buzzer", subtitle: "PWM-driven Alarm",
+    specs: ["5V operating voltage","Frequency: 1–5 kHz","Controlled via tone()","Pin 8 trigger"],
+    accent:"#b45309", bg:"#fffbeb", border:"#fde68a"
+  },
+  {
+    id: "led", icon: "●", name: "5mm LED + Resistor", subtitle: "Visual Indicator",
+    specs: ["220Ω current-limiting resistor","Red indicator LED","Vf ≈ 2V forward voltage","Pin 13 output"],
+    accent:"#dc2626", bg:"#fff1f2", border:"#fecdd3"
+  },
+  {
+    id: "lcd", icon: "▤", name: "I²C LCD 16×2", subtitle: "Status Display",
+    specs: ["I²C address: 0x27","16 columns × 2 rows","SDA → A4, SCL → A5","Built-in backlight"],
+    accent:"#7c3aed", bg:"#faf5ff", border:"#ddd6fe"
+  },
+  {
+    id: "breadboard", icon: "⊞", name: "Breadboard & Wires", subtitle: "Prototyping Platform",
+    specs: ["Half-size breadboard","Jumper wire set M-M","400 tie-point grid","No soldering required"],
+    accent:"#374151", bg:"#f9fafb", border:"#e5e7eb"
+  }
+];
+
+const wiring = [
+  { component:"IR Sensor",  pin:"VCC",         arduino:"5V",                 note:"Power" },
+  { component:"IR Sensor",  pin:"GND",         arduino:"GND",                note:"Ground" },
+  { component:"IR Sensor",  pin:"OUT",         arduino:"Digital Pin 2",      note:"Digital input" },
+  { component:"Buzzer",     pin:"+",           arduino:"Digital Pin 8",      note:"PWM tone output" },
+  { component:"Buzzer",     pin:"−",           arduino:"GND",                note:"Ground" },
+  { component:"LED",        pin:"Anode (+)",   arduino:"Digital Pin 13 → 220Ω", note:"With resistor in series" },
+  { component:"LED",        pin:"Cathode (−)", arduino:"GND",                note:"Ground" },
+  { component:"LCD (I²C)", pin:"VCC",          arduino:"5V",                 note:"Power" },
+  { component:"LCD (I²C)", pin:"GND",          arduino:"GND",                note:"Ground" },
+  { component:"LCD (I²C)", pin:"SDA",          arduino:"Analog Pin A4",      note:"I²C data" },
+  { component:"LCD (I²C)", pin:"SCL",          arduino:"Analog Pin A5",      note:"I²C clock" },
+];
+
+const arduinoCode = `// IR Alert System — Intelligent Proximity Alarm
+// Arduino Uno Sketch
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Pin Definitions
+const int IR_PIN    = 2;
+const int BUZZER    = 8;
+const int LED_PIN   = 13;
+
+// LCD: I2C address 0x27, 16 columns, 2 rows
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+bool lastState = HIGH;
+
+void setup() {
+  pinMode(IR_PIN,  INPUT);
+  pinMode(BUZZER,  OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("  IR Alert Sys  ");
+  lcd.setCursor(0, 1);
+  lcd.print("   Standby...   ");
+
+  Serial.begin(9600);
+  delay(1500);
+}
+
+void loop() {
+  bool detected = (digitalRead(IR_PIN) == LOW);
+
+  if (detected && lastState == HIGH) {
+    // Object detected — trigger alert
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER, 1000, 300);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(" >> ALERT! <<   ");
+    lcd.setCursor(0, 1);
+    lcd.print("Object Detected ");
+
+    Serial.println("ALERT: Object in range");
+  }
+
+  if (!detected && lastState == LOW) {
+    // Zone cleared — reset to standby
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("  IR Alert Sys  ");
+    lcd.setCursor(0, 1);
+    lcd.print("   Standby...   ");
+
+    Serial.println("Zone cleared.");
+  }
+
+  lastState = detected ? LOW : HIGH;
+  delay(50);
+}`;
+
+/* ═══════════════════════════════════════════
+   HEADER SCROLL
+═══════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('site-header').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* ═══════════════════════════════════════════
+   HAMBURGER
+═══════════════════════════════════════════ */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobile-menu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+function closeMobileMenu() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   COMPONENT CARDS
+═══════════════════════════════════════════ */
+let activeCard = null;
+const grid = document.getElementById('cards-grid');
+
+components.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'comp-card';
+  card.dataset.id = c.id;
+  card.style.setProperty('--card-accent', c.accent);
+
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-icon" style="background:${c.bg};color:${c.accent};border-color:${c.border};">${c.icon}</div>
+      <div class="card-indicator"></div>
+    </div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-subtitle">${c.subtitle}</div>
+    <ul class="card-specs">
+      ${c.specs.map(s => `
+        <li>
+          <span class="spec-dot" style="background:${c.accent};"></span>
+          ${s}
+        </li>`).join('')}
+    </ul>`;
+
+  card.addEventListener('click', () => {
+    const isActive = activeCard === c.id;
+    // Reset all
+    document.querySelectorAll('.comp-card').forEach(el => {
+      el.classList.remove('active');
+      el.style.background = 'white';
+      el.style.borderColor = 'var(--gray-100)';
+      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+    });
+    if (!isActive) {
+      card.classList.add('active');
+      card.style.background = c.bg;
+      card.style.borderColor = c.border;
+      card.style.boxShadow = `0 8px 30px rgba(0,0,0,0.08), 0 0 0 3px ${c.border}`;
+      activeCard = c.id;
+    } else {
+      activeCard = null;
+    }
+  });
+
+  grid.appendChild(card);
+});
+
+/* ═══════════════════════════════════════════
+   WIRING TABLE
+═══════════════════════════════════════════ */
+function badgeStyle(arduino) {
+  if (arduino.includes('Pin 2'))       return 'background:#f0f9ff;color:#0369a1;';
+  if (arduino.includes('Pin 8'))       return 'background:#fffbeb;color:#b45309;';
+  if (arduino.includes('Pin 13'))      return 'background:#fff1f2;color:#dc2626;';
+  if (arduino.includes('A4') || arduino.includes('A5')) return 'background:#faf5ff;color:#7c3aed;';
+  if (arduino.includes('5V'))          return 'background:#f0fdfa;color:#0f766e;';
+  return 'background:#f9fafb;color:#374151;';
+}
+
+const tbody = document.getElementById('wiring-tbody');
+wiring.forEach(row => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="td-component">${row.component}</td>
+    <td class="td-pin font-mono">${row.pin}</td>
+    <td><span class="pin-badge" style="${badgeStyle(row.arduino)}">${row.arduino}</span></td>
+    <td class="td-note">${row.note}</td>`;
+  tbody.appendChild(tr);
+});
+
+/* ═══════════════════════════════════════════
+   SYNTAX-HIGHLIGHTED CODE
+═══════════════════════════════════════════ */
+function highlight(line) {
+  if (line.trim().startsWith('//')) {
+    return `<span class="line-content comment">${escHtml(line)}</span>`;
+  }
+  if (line.trim().startsWith('#')) {
+    return `<span class="line-content directive">${escHtml(line)}</span>`;
+  }
+  let h = escHtml(line);
+  // keywords
+  h = h.replace(/\b(void|bool|int|const|true|false|HIGH|LOW|return|delay|if)\b/g,
+    '<span class="kw">$1</span>');
+  // functions
+  h = h.replace(/\b(setup|loop|pinMode|digitalWrite|digitalRead|tone|noTone|init|backlight|setCursor|clear|begin|println|print)\b/g,
+    '<span class="fn">$1</span>');
+  // strings
+  h = h.replace(/&quot;([^&]*)&quot;/g, '<span class="str">"$1"</span>');
+  // numbers (not inside tags)
+  h = h.replace(/(?<![a-zA-Z#&])\b(\d+)\b(?![;])/g, '<span class="num">$1</span>');
+  return `<span class="line-content">${h}</span>`;
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+const pre = document.getElementById('code-pre');
+arduinoCode.split('\n').forEach((line, i) => {
+  const div = document.createElement('div');
+  div.className = 'code-line';
+  div.innerHTML = `<span class="line-num">${i + 1}</span>${highlight(line)}`;
+  pre.appendChild(div);
+});
+
+/* ═══════════════════════════════════════════
+   COPY CODE
+═══════════════════════════════════════════ */
+function copyCode() {
+  navigator.clipboard.writeText(arduinoCode).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
