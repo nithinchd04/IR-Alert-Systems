@@ -859,24 +859,20 @@ const wiring = [
   { component:"LCD (I²C)", pin:"SCL",          arduino:"Analog Pin A5",      note:"I²C clock" },
 ];
 
-const arduinoCode = `// IR Alert System — Intelligent Proximity Alarm
-// Arduino Uno Sketch
-
-#include <Wire.h>
+const arduinoCode = `#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-// Pin Definitions
-const int IR_PIN    = 2;
-const int BUZZER    = 8;
-const int LED_PIN   = 13;
-
-// LCD: I2C address 0x27, 16 columns, 2 rows
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-bool lastState = HIGH;
+const int PIR_PIN = 2;
+const int BUZZER  = 8;
+const int LED_PIN = 13;
+
+bool lastState  = LOW;
+int  alertCount = 0;
 
 void setup() {
-  pinMode(IR_PIN,  INPUT);
+  pinMode(PIR_PIN, INPUT);
   pinMode(BUZZER,  OUTPUT);
   pinMode(LED_PIN, OUTPUT);
 
@@ -888,14 +884,13 @@ void setup() {
   lcd.print("   Standby...   ");
 
   Serial.begin(9600);
-  delay(1500);
 }
 
 void loop() {
-  bool detected = (digitalRead(IR_PIN) == LOW);
+  bool detected = (digitalRead(PIR_PIN) == HIGH);
 
-  if (detected && lastState == HIGH) {
-    // Object detected — trigger alert
+  if (detected && lastState == LOW) {
+    alertCount++;
     digitalWrite(LED_PIN, HIGH);
     tone(BUZZER, 1000, 300);
 
@@ -903,13 +898,13 @@ void loop() {
     lcd.setCursor(0, 0);
     lcd.print(" >> ALERT! <<   ");
     lcd.setCursor(0, 1);
-    lcd.print("Object Detected ");
+    lcd.print("Motion Detected!");
 
-    Serial.println("ALERT: Object in range");
+    Serial.print("ALERT #");
+    Serial.println(alertCount);
   }
 
-  if (!detected && lastState == LOW) {
-    // Zone cleared — reset to standby
+  if (!detected && lastState == HIGH) {
     digitalWrite(LED_PIN, LOW);
     noTone(BUZZER);
 
@@ -922,8 +917,8 @@ void loop() {
     Serial.println("Zone cleared.");
   }
 
-  lastState = detected ? LOW : HIGH;
-  delay(50);
+  lastState = detected ? HIGH : LOW;
+  delay(100);
 }`;
 
 /* ═══════════════════════════════════════════
