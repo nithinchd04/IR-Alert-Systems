@@ -106,6 +106,26 @@
     nav.desktop a:hover { color: var(--teal); }
     nav.desktop a:hover::after { width: 100%; }
 
+    /* Wokwi nav link special style */
+    nav.desktop a.wokwi-link {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      background: var(--teal-light);
+      color: var(--teal);
+      border: 1px solid var(--teal-border);
+      font-weight: 600;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    nav.desktop a.wokwi-link::after { display: none; }
+    nav.desktop a.wokwi-link:hover {
+      background: #ccfbf1;
+      box-shadow: 0 2px 10px rgba(15,118,110,0.2);
+      color: var(--teal);
+    }
+
     .hamburger {
       display: none;
       flex-direction: column;
@@ -149,6 +169,13 @@
       transition: color 0.2s, background 0.2s;
     }
     .mobile-menu a:hover { color: var(--teal); background: var(--teal-light); }
+    .mobile-menu a.wokwi-mobile {
+      color: var(--teal);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
     /* ── HERO ── */
     #overview {
@@ -219,6 +246,29 @@
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     .btn-secondary:hover { border-color: var(--teal); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    /* Wokwi hero button */
+    .btn-wokwi {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--teal);
+      background: var(--teal-light);
+      text-decoration: none;
+      border: 1.5px solid var(--teal-border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .btn-wokwi:hover {
+      transform: translateY(-1px);
+      background: #ccfbf1;
+      box-shadow: 0 6px 18px rgba(15,118,110,0.18);
+    }
+    .btn-wokwi svg { flex-shrink: 0; }
 
     /* Arduino board card */
     .board-card {
@@ -523,6 +573,60 @@
       color: #475569;
     }
 
+    /* ── WOKWI BANNER ── */
+    .wokwi-banner {
+      background: linear-gradient(135deg, #0f2027 0%, #1a3a35 100%);
+      border: 1px solid rgba(153,246,228,0.2);
+      border-radius: 1.25rem;
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 2.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    .wokwi-banner-left { display: flex; align-items: center; gap: 1rem; }
+    .wokwi-icon-wrap {
+      width: 3rem; height: 3rem;
+      border-radius: 0.875rem;
+      background: rgba(15,118,110,0.2);
+      border: 1px solid rgba(153,246,228,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .wokwi-banner-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: white;
+      margin-bottom: 0.25rem;
+    }
+    .wokwi-banner-sub { font-size: 0.8rem; color: #64748b; }
+    .btn-wokwi-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--dark);
+      background: #2dd4bf;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(45,212,191,0.3);
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-wokwi-banner:hover {
+      transform: translateY(-2px);
+      background: #5eead4;
+      box-shadow: 0 8px 24px rgba(45,212,191,0.4);
+    }
+
     /* ── FOOTER ── */
     footer {
       background: var(--dark);
@@ -553,6 +657,24 @@
       background: rgba(15,118,110,0.12);
       color: #2dd4bf;
       border: 1px solid rgba(15,118,110,0.25);
+    }
+    .footer-wokwi-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(45,212,191,0.08);
+      color: #2dd4bf;
+      border: 1px solid rgba(45,212,191,0.2);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .footer-wokwi-link:hover {
+      background: rgba(45,212,191,0.15);
+      border-color: rgba(45,212,191,0.4);
     }
     .footer-credit { font-size: 0.75rem; color: #475569; }
     .footer-bottom {
@@ -591,6 +713,7 @@
       .hero-inner { grid-template-columns: 1fr; }
       .board-card { display: none; }
       .stats-bar  { grid-template-columns: repeat(2, 1fr); }
+      .wokwi-banner { flex-direction: column; align-items: flex-start; }
     }
     @media (max-width: 640px) {
       nav.desktop { display: none; }
@@ -617,6 +740,9 @@
       <a href="#components">Components</a>
       <a href="#wiring">Wiring</a>
       <a href="#code">Code</a>
+      <a href="https://wokwi.com/projects/457150179175680001" target="_blank" rel="noopener" class="wokwi-link">
+        ▶ Simulate
+      </a>
     </nav>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
       <span></span><span></span><span></span>
@@ -627,6 +753,7 @@
     <a href="#components" onclick="closeMobileMenu()">Components</a>
     <a href="#wiring"     onclick="closeMobileMenu()">Wiring</a>
     <a href="#code"       onclick="closeMobileMenu()">Code</a>
+    <a href="https://wokwi.com/projects/457150179175680001" target="_blank" rel="noopener" class="wokwi-mobile" onclick="closeMobileMenu()">▶ Simulate on Wokwi</a>
   </div>
 </header>
 
@@ -643,7 +770,11 @@
         whenever an object enters the monitored zone.
       </p>
       <div class="hero-buttons fade-in delay-3">
-        <a href="#code"       class="btn-primary">View Code →</a>
+        <a href="#code" class="btn-primary">View Code →</a>
+        <a href="https://wokwi.com/projects/457150179175680001" target="_blank" rel="noopener" class="btn-wokwi">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Simulate on Wokwi
+        </a>
         <a href="#components" class="btn-secondary">Components</a>
       </div>
     </div>
@@ -783,6 +914,21 @@
         <span>Requires: Wire.h · LiquidCrystal_I2C.h</span>
       </div>
     </div>
+
+    <!-- Wokwi Banner -->
+    <div class="wokwi-banner">
+      <div class="wokwi-banner-left">
+        <div class="wokwi-icon-wrap">🔬</div>
+        <div>
+          <div class="wokwi-banner-title">Try it in the browser</div>
+          <div class="wokwi-banner-sub">Simulate this project live on Wokwi — no hardware required.</div>
+        </div>
+      </div>
+      <a href="https://wokwi.com/projects/457150179175680001" target="_blank" rel="noopener" class="btn-wokwi-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Open in Wokwi
+      </a>
+    </div>
   </div>
 </section>
 
@@ -794,7 +940,9 @@
         <div class="logo-dot"></div>
         <span class="footer-logo-text">IR Alert System</span>
       </div>
-      <div class="lab-badge">🔬 Based in your lab / workspace</div>
+      <a href="https://wokwi.com/projects/457150179175680001" target="_blank" rel="noopener" class="footer-wokwi-link">
+        ▶ Simulate on Wokwi
+      </a>
       <p class="footer-credit">Built with Arduino Uno · FC-51 IR · I²C LCD</p>
     </div>
     <div class="footer-bottom">
@@ -971,7 +1119,6 @@ components.forEach(c => {
 
   card.addEventListener('click', () => {
     const isActive = activeCard === c.id;
-    // Reset all
     document.querySelectorAll('.comp-card').forEach(el => {
       el.classList.remove('active');
       el.style.background = 'white';
@@ -1026,15 +1173,11 @@ function highlight(line) {
     return `<span class="line-content directive">${escHtml(line)}</span>`;
   }
   let h = escHtml(line);
-  // keywords
   h = h.replace(/\b(void|bool|int|const|true|false|HIGH|LOW|return|delay|if)\b/g,
     '<span class="kw">$1</span>');
-  // functions
   h = h.replace(/\b(setup|loop|pinMode|digitalWrite|digitalRead|tone|noTone|init|backlight|setCursor|clear|begin|println|print)\b/g,
     '<span class="fn">$1</span>');
-  // strings
   h = h.replace(/&quot;([^&]*)&quot;/g, '<span class="str">"$1"</span>');
-  // numbers (not inside tags)
   h = h.replace(/(?<![a-zA-Z#&])\b(\d+)\b(?![;])/g, '<span class="num">$1</span>');
   return `<span class="line-content">${h}</span>`;
 }
